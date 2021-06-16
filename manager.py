@@ -9,12 +9,15 @@ from datetime import timedelta
 from flask import Flask,session
 from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
+from flask_wtf.csrf import CSRFProtect
 from redis import StrictRedis
 
 app = Flask(__name__)
 
 class Config(object):
     DEBUG = True
+
+    SECRET_KEY = "auhjin_ai8@163.com"
 
     #配置MySQL信息
     SQLAlCHEMY_DATABASE_URL = "mysql+pymysql://root:root@localhost:3306/phm"
@@ -28,7 +31,7 @@ class Config(object):
     SESSION_TYPE = "redis"
     SESSION_REDIS = StrictRedis(host=REDIS_HOST,port=REDIS_PORT)
     SESSION_USE_SIGNER = True
-    PERMANENT_SESSION_LIFETIME = timedelta(day = 2)
+    PERMANENT_SESSION_LIFETIME = timedelta(days = 2)
 
 app.config.from_object(Config)
 
@@ -38,6 +41,9 @@ redis_store = StrictRedis(host=Config.REDIS_HOST,port=Config.REDIS_PORT,decode_r
 
 Session(app)
 
+CSRFProtect(app)
+
+@app.route("/")
 def hellp_world():
 
     session['name'] = "auhjin"
@@ -46,4 +52,4 @@ def hellp_world():
     return "hello world!"
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
