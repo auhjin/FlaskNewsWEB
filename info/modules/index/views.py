@@ -6,7 +6,7 @@
 """
 from flask import session
 
-from info import index_blue
+from info.modules.index import index_blue
 
 
 @index_blue.route("/")
