@@ -11,7 +11,9 @@ from flask_wtf import CSRFProtect
 from redis import StrictRedis
 
 from config import envs
+from info.modules import index_blue
 
+redis_store = None
 
 def creat_app(config_name):
     app = Flask(__name__)
@@ -26,5 +28,7 @@ def creat_app(config_name):
     Session(app)
 
     CSRFProtect(app)
+
+    app.register_blueprint(index_blue)
 
     return app

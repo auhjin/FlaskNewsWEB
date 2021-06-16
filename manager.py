@@ -11,13 +11,6 @@ from info import creat_app
 
 app = creat_app("develop")
 
-@app.route("/")
-def hellp_world():
-
-    session['name'] = "auhjin"
-    print(session.get("name"))
-
-    return "hello world!"
 
 if __name__ == "__main__":
     app.run()
