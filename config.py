@@ -4,6 +4,7 @@
 @file:config.py
 @time:2021/06/16
 """
+import logging
 from datetime import timedelta
 
 from redis import StrictRedis
@@ -27,6 +28,8 @@ class Config(object):
     SESSION_REDIS = StrictRedis(host=REDIS_HOST,port=REDIS_PORT)
     SESSION_USE_SIGNER = True
     PERMANENT_SESSION_LIFETIME = timedelta(days = 2)
+
+    LEVEL_NAME = logging.DEBUG
 
 class DevelopConfig(Config):
     DEBUG = True
