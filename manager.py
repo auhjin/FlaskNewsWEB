@@ -5,7 +5,7 @@
 @time:2021/06/16
 """
 from flask_script import Manager
-from info import creat_app, db
+from info import creat_app, db, models
 from flask_migrate import Migrate, MigrateCommand
 
 app = creat_app("develop")

@@ -20,4 +20,8 @@ def hello_world():
     # current_app.logger.warning("警告信息")
     # current_app.logger.error("错误信息")
 
-    return render_template("index.html")
+    return render_template("news/index.html")
+
+@index_blue.route("/favicon.icon")
+def get_web_logo():
+    return current_app.send_static_file("news/news.png")
