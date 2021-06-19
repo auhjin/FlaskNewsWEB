@@ -7,7 +7,7 @@
 import json
 import random
 import re
-from flask import request, current_app, make_response, jsonify
+from flask import request, current_app, make_response, jsonify, session
 from info import redis_store, constants, db
 from info.constants import IMAGE_CODE_REDIS_EXPIRES
 from info.libs.yuntongxun.sms import CCP
@@ -16,11 +16,39 @@ from info.modules.passport import passport_blue
 from info.utils.captcha.captcha import captcha
 from info.utils.response_code import RET
 
+@passport_blue.route("/login", methods=["POST"])
+def login():
+    #1.获取参数
+    dict_data = request.get_json()
+    mobile = dict_data.get("mobile")
+    password = dict_data.get("password")
+    #2.校验参数，空值校验
+    if not all([mobile,password]):
+        return jsonify(error=RET.PARAMERR,errmsg="参数不全")
+    #3.通过手机号参数，查询数据库中的用户对象
+    try:
+        user = User.query.filter(User.mobile == mobile).first()
+    except Exception as e:
+        return jsonify(error=RET.DBERR,errmsg="获取用户失败")
+    #4.判断用户对象是否存在
+    if not user:
+        return jsonify(error=RET.NODATA,errmsg="用户不存在")
+    #5.校验密码是否正确
+    if not user.check_password(password):
+
+        return jsonify(error=RET.PWDERR,errmsg="密码错误")
+    #6.将用户信息保存在Session中
+    session["user_id"] = user.id
+    #7.返回响应
+    return jsonify(error=RET.OK, errmsg="用户登录成功")
+
 @passport_blue.route("/register", methods=["POST"])
 def register():
     # 1、获取参数
-    json_data = request.data
-    dict_data = json.loads(json_data)
+    # json_data = request.data
+    # dict_data = json.loads(json_data)
+    dict_data = request.json
+    # dict_data = request.get_json()
     mobile = dict_data.get("mobile")
     sms_code = dict_data.get("sms_data")
     password = dict_data.get("password")
