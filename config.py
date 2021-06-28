@@ -27,7 +27,7 @@ class Config(object):
     SESSION_TYPE = "redis"
     SESSION_REDIS = StrictRedis(host=REDIS_HOST,port=REDIS_PORT)
     SESSION_USE_SIGNER = True
-    PERMANENT_SESSION_LIFETIME = timedelta(days = 2)
+    PERMANENT_SESSION_LIFETIME = timedelta(seconds = 20)
 
     LEVEL_NAME = logging.DEBUG
 
