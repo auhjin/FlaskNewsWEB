@@ -7,6 +7,8 @@
 import json
 import random
 import re
+from datetime import datetime
+
 from flask import request, current_app, make_response, jsonify, session
 from info import redis_store, constants, db
 from info.constants import IMAGE_CODE_REDIS_EXPIRES
@@ -52,6 +54,12 @@ def login():
     #6.将用户信息保存在Session中
     session["user_id"] = user.id
     print(user.id)
+    #记录用户最后一次的登录时间
+    user.last_login = datetime.now()
+    # try:
+    #     db.session.commit()
+    # except Exception as e:
+    #     current_app.logger.error(e)
     #7.返回响应
     return jsonify(errno=RET.OK, errmsg="用户登录成功")
 
