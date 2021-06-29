@@ -6,7 +6,7 @@
 """
 from flask import session, current_app, render_template, jsonify
 
-from info.models import User, News
+from info.models import User, News, Category
 from info.modules.index import index_blue
 from info.utils.response_code import RET
 
@@ -39,6 +39,15 @@ def hello_world():
     news_list=[]
     for item in news:
         news_list.append(item.to_dict())
+    #查询所有的分类数据
+    try:
+        category = Category.query.all()
+    except Exception as e:
+        return jsonify(errno=RET.DBERR, errmsg="获取分类列表失败")
+    #将分类对象列表转为字典列表
+    category_list = []
+    for item in category:
+        category_list.append(item.to_dict)
     #拼接用户数据渲染页面
     # user_dict = {
     #     "nickname":user.nickname
@@ -48,7 +57,8 @@ def hello_world():
     data ={
         #如果user有值，返回左边，否则右边
         "user_info":user.to_dict()  if user else "",
-        "news_list":news_list
+        "news_list":news_list,
+        "category_list":category_list
     }
     # print('用户信息：%s'% user.nick_name)
 
