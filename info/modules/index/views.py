@@ -4,12 +4,60 @@
 @file:views.py
 @time:2021/06/16
 """
-from flask import session, current_app, render_template, jsonify
+from flask import session, current_app, render_template, jsonify, request
 
 from info.models import User, News, Category
 from info.modules.index import index_blue
 from info.utils.response_code import RET
 
+# 新闻列表首页展示：
+# 请求方式：get
+# 请求参数：page, per_page, category_id
+# 返回值：data数据
+@index_blue.route("/news_list")
+def news_list():
+#   操作步骤
+#   1 获取参数
+    category_id = request.args.get("cid","1")
+    page = request.args.get("page","1")
+    per_page = request.args.get("per_page","10")
+#   2.参数类型转换
+    try:
+        page = int(page)
+        per_page = int(per_page)
+    except Exception as e:
+        page = 1
+        per_page = 10
+#   3.分页查询
+    try:
+        # filters = ""
+        # if category_id != "1":
+        #     filters = (News.category_id == category_id)
+        # paginate = News.query.filter(filters).order_by(News.create_time.desc()).paginate(page,per_page,False)
+
+        # if category_id == "1":
+        #     paginate = News.query.filter().order_by(News.create_time.desc()).paginate(page, per_page, False)
+        # else:
+        #     paginate = News.query.filter(News.category_id == category_id).order_by(News.create_time.desc()).paginate(page,per_page,False)
+
+        filters = []
+        if category_id != "1":
+            filters.append(News.category_id == category_id)
+        paginate = News.query.filter(*filters).order_by(News.create_time.desc()).paginate(page,per_page,False)
+
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg = "获取新闻列表失败")
+#   4.获取分页对象中的属性，总页数，当前页，当前页的对象列表
+    totalPage = paginate.pages
+    currentPage = paginate.page
+    items = paginate.items
+#   5.将对象列表转化为字典列表
+    news_List = []
+    for news in items:
+        news_List.append(news.to_dict())
+#   6.返回数据，返回响应
+    return jsonify(errno=RET.OK, errmsg="获取新闻列表成功", totalpage=totalPage, currentpage=currentPage, news_list=news_List)
 
 @index_blue.route("/",methods = ["GET","POST"])
 def hello_world():
