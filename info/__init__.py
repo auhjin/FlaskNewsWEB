@@ -50,6 +50,9 @@ def creat_app(config_name):
     from info.modules.passport import passport_blue
     app.register_blueprint(passport_blue)
 
+    from info.modules.news import news_blue
+    app.register_blueprint(news_blue)
+
     #使用请求钩子拦截所有的请求，通过在cookie中设置csrf_token
     @app.after_request
     def after_request(resp):
