@@ -4,11 +4,10 @@
 @file:views.py
 @time:2021/06/30
 """
-from flask import current_app, jsonify, render_template, abort
+from flask import current_app, jsonify, render_template, abort, session
 
 from . import  news_blue
-from ...models import News
-
+from ...models import News, User
 
 # 新闻详情请求接口
 # 请求路径： /news/<int:news_id>
@@ -20,6 +19,15 @@ from ...utils.response_code import RET
 
 @news_blue.route("/<int:news_id>")
 def news_detail(news_id):
+    #从session中取出user_id
+    user_id = session.get("user_id")
+    #通过user_id取出用户对象
+    user = None
+    if user_id:
+        try:
+            user = User.query.get(user_id)
+        except Exception as e:
+            current_app.logger.error(e)
     # 1、根据新闻编号，查询新闻对象
     try:
         news = News.query.get(news_id)
@@ -30,6 +38,8 @@ def news_detail(news_id):
         abort(404)
     # 2、携带数据，渲染界面
     data = {
-        "news_info":news.to_dict() if news else ""
+        "news_info":news.to_dict() if news else "",
+        "user_info":user.to_dict() if user else ""
     }
+
     return render_template("news/detail.html", data=data)
