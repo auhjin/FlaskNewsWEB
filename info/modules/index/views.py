@@ -4,10 +4,11 @@
 @file:views.py
 @time:2021/06/16
 """
-from flask import session, current_app, render_template, jsonify, request
+from flask import session, current_app, render_template, jsonify, request, g
 
 from info.models import User, News, Category
 from info.modules.index import index_blue
+from info.utils.commons import user_login_data
 from info.utils.response_code import RET
 
 # 新闻列表首页展示：
@@ -61,6 +62,7 @@ def newslist():
     return jsonify(errno=RET.OK, errmsg="获取新闻列表成功", totalPage=totalPage, currentPage=currentPage, newsList=newsList)
 
 @index_blue.route("/",methods = ["GET","POST"])
+@user_login_data
 def hello_world():
 
     # session['name'] = "auhjin"
@@ -70,15 +72,15 @@ def hello_world():
     # current_app.logger.warning("警告信息")
     # current_app.logger.error("错误信息")
 
-    #获取用户的登录信息
-    user_id = session.get("user_id")
-    #通过user_id取出用户对象
-    user = None
-    if user_id:
-        try:
-            user = User.query.get(user_id)
-        except Exception as e:
-            current_app.logger.error(e)
+    # #获取用户的登录信息
+    # user_id = session.get("user_id")
+    # #通过user_id取出用户对象
+    # user = None
+    # if user_id:
+    #     try:
+    #         user = User.query.get(user_id)
+    #     except Exception as e:
+    #         current_app.logger.error(e)
     #查询热门新闻，根据点击量，查询前十条
     try:
         # news = News.query.order_by(News.clicks.desc()).limit(10).all()
@@ -106,7 +108,7 @@ def hello_world():
     # }
     data ={
         #如果user有值，返回左边，否则右边
-        "user_info":user.to_dict()  if user else "",
+        "user_info":g.user.to_dict()  if g.user else "",
         "news_list":news_list,
         "category_list":category_list
     }
