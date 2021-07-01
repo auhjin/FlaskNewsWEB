@@ -49,11 +49,17 @@ def news_detail(news_id):
     click_news_list = []
     for news_item in click_news:
         click_news_list.append(news_item.to_dict())
+    is_collected = False
+    if g.user:
+        if news in g.user.collection_news:
+            is_collected = True
+
     # 2、携带数据，渲染界面
     data = {
         "news_info":news.to_dict() if news else "",
         "user_info":g.user.to_dict() if g.user else "",
-        "news_list":click_news_list
+        "news_list":click_news_list,
+        "is_collected":is_collected
     }
 
     return render_template("news/detail.html", data=data)
