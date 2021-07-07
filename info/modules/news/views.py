@@ -21,7 +21,8 @@ from ...utils.response_code import RET
 #请求方式：post
 #请求参数：news_id,action,g.user
 #返回参数：errno，errmsg
-news_blue.route("/news_collect")
+news_blue.route("/news_collect", methods=["POST"])
+@user_login_data
 def news_collect():
     #判断用户是否登录
     if not g.user:
