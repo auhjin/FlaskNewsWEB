@@ -7,7 +7,8 @@
 from flask import current_app, jsonify, render_template, abort, session, g, request
 
 from . import  news_blue
-from ...models import News, User
+from ... import db
+from ...models import News, User, Comment
 
 # 新闻详情请求接口
 # 请求路径： /news/<int:news_id>
@@ -21,6 +22,51 @@ from ...utils.response_code import RET
 #请求方式：post
 #请求参数：news_id,action,g.user
 #返回参数：errno，errmsg
+news_blue.route("/news_comment",method=["POST"])
+@user_login_data
+def news_comment():
+    '''
+    操作思路：
+    判断用户是否登录
+    获取请求参数
+    校验参数，为空校验
+    根据新闻编号取出新闻对象，判断新闻是否存在
+    创建新闻评论对象，设置属性
+    保存评论对象到数据库中
+    :return: 携带评论的数据
+    '''
+    if not g.user:
+        return jsonify(errno=RET.NODATA,errmsg="user not login")
+
+    news_id = request.json.get("news_id")
+    content = request.json.get("comment")
+    parent_id = request.json.get("parent_id")
+
+    if not all([news_id,content,parent_id]):
+        return jsonify(errno=RET.NODATA,errmsg="parameter not all")
+    try:
+        news = News.query.get(news_id)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR,errmsg="get news fail")
+    if not news:
+        return jsonify(errno=RET.NODATA,errmsg="not this news")
+
+    comment = Comment()
+    comment.user_id = g.user.id
+    comment.news_id = news_id
+    comment.content = content
+    if parent_id:
+        comment.parent_id = parent_id
+
+    try:
+        db.session.add(comment)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR,errmsg="comment fail")
+
+    return jsonify(errno=RET.OK, errmsg="comment success", data = comment.to_dict())
+
 news_blue.route("/news_collect", methods=["POST"])
 @user_login_data
 def news_collect():
